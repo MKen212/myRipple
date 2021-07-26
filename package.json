@@ -1,0 +1,23 @@
+{
+  "name": "myripple",
+  "version": "1.0.0",
+  "description": "XRP and Ripple Test Projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MKen212/myRipple.git"
+  },
+  "author": "Malarena SA",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MKen212/myRipple/issues"
+  },
+  "homepage": "https://github.com/MKen212/myRipple#readme",
+  "devDependencies": {
+    "eslint": "^7.31.0",
+    "eslint-plugin-html": "^6.1.2"
+  }
+}
