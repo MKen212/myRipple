@@ -1,8 +1,11 @@
 /* global ripple */
 "use strict";
 
+// Script 01 - Getting Ledger Information from Mainnet and Testnet
+
 const mainnet = new ripple.RippleAPI({
-  server: 'wss://s1.ripple.com'
+  server: "wss://s1.ripple.com"
+  // server: "ws://localhost:6006"
 });
 
 // Get Ledger Info from Mainnet
