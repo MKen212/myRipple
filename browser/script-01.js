@@ -1,6 +1,6 @@
+/* global ripple */
 "use strict";
 
-// eslint-disable-next-line no-undef
 const mainnet = new ripple.RippleAPI({
   server: 'wss://s1.ripple.com'
 });
@@ -19,7 +19,7 @@ const mainnet = new ripple.RippleAPI({
 
 })(mainnet);
 
-// eslint-disable-next-line no-undef
+
 const testnet = new ripple.RippleAPI({
   server: "wss://s.altnet.rippletest.net/"
 });
@@ -32,6 +32,7 @@ const testnet = new ripple.RippleAPI({
   });
   console.log(response);
 })(testnet);
+
 
 // Get Transaction Info
 (async function(api) {
