@@ -15,7 +15,11 @@ const localnet = new ripple.RippleAPI({
   server: "ws://localhost:6006"
 });
 
-const transaction = "01AAEF23D5190D2413843CADD489AAB9C85D08D56D8A27CD7837291F96955D8A";
+// const transaction = "01AAEF23D5190D2413843CADD489AAB9C85D08D56D8A27CD7837291F96955D8A"
+// ;
+
+const transaction = "3907E408483C39C9D576737CB13C36BD8DC8F556BE0C0F422D036021C72236C6"
+;
 
 
 // Get Ledger Info from Mainnet
@@ -109,11 +113,11 @@ const transaction = "01AAEF23D5190D2413843CADD489AAB9C85D08D56D8A27CD7837291F969
 
 
 // Get Transaction Info
-(async function(api) {
-  await api.connect();
-  let response = await api.getTransaction(transaction);
-  console.log(response);
-})(mainnet);
+// (async function(api) {
+//   await api.connect();
+//   let response = await api.getTransaction(transaction);
+//   console.log(response);
+// })(mainnet);
 
 
 // Function to display results
