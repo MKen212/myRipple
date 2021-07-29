@@ -2,6 +2,12 @@
 
 // Script 02 - Getting Transaction Information
 
+// Load Env Variables
+const Dotenv = require("dotenv");
+const dotenvConfig = Dotenv.config().catch(console.error);
+console.log(dotenvConfig);
+
+
 const RippleAPI = require("ripple-lib").RippleAPI;
 
 const api = new RippleAPI({

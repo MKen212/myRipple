@@ -21,6 +21,7 @@
     "eslint-plugin-html": "^6.1.2"
   },
   "dependencies": {
+    "dotenv": "^10.0.0",
     "ripple-lib": "^1.9.7"
   }
 }
