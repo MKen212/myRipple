@@ -1,0 +1,22 @@
+/* 07-MonitorPayments CSS */
+
+body {
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  text-align: center;
+}
+
+#content {
+  margin: 20px auto;
+}
+
+table {
+  width:60%; 
+  margin-left: 20%; 
+  margin-right: 20%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 5px;
+}
