@@ -75,9 +75,9 @@ function apiRequest(message) {
 
 // Function to log transaction details of a subscribed account
 const logTx = function(tx) {
-  // console.log(tx);
+  console.log(tx);
   // console.log(`${tx.transaction.TransactionType} transaction for A/C: ${tx.transaction.Account} / Result: ${tx.meta.TransactionResult} in ledger ${tx.ledger_index} / Transaction validated?: ${tx.validated}`);
-  countXRPReceived(tx, "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe");
+  countXRPReceived(tx, "rnbsExCdXV2y85Qg9ewKkuNsuQGGjDBfBC");
 };
 
 // Setup Object to hold WebSocket Handlers
@@ -104,7 +104,7 @@ async function accInfo() {
   console.log("Get Acc Info...");
   const message = {
     "command": "account_info",
-    "account": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "account": "rnbsExCdXV2y85Qg9ewKkuNsuQGGjDBfBC",
     "strict": true,
     "ledger_index": "current",
     "queue": true
@@ -117,7 +117,7 @@ async function accInfo() {
 async function doSubscribe() {
   const subMessage = {
     "command": "subscribe",
-    "accounts": ["rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"]
+    "accounts": ["rnbsExCdXV2y85Qg9ewKkuNsuQGGjDBfBC"]
   };
   const subResponse = await apiRequest(subMessage);
   if (subResponse.status === "success") {
@@ -185,6 +185,7 @@ function countXRPReceived(tx, address) {
     console.log("Transaction Failed!");
     return;
   }
+
   if (tx.transaction.TransactionType === "Payment") {
     // Process a payment transaction
     if (tx.transaction.Destination !== address) {
@@ -201,7 +202,7 @@ function countXRPReceived(tx, address) {
       console.log(`Received non-XRP Currency`);
     }
     return;
-  } else if (tx.transaction.TransactionType.includes(["PaymentChannelClaim", "PaymentChannelFund", "OfferCreate", "CheckCash", "EscrowFinish"])) {
+  } else if (["PaymentChannelClaim", "PaymentChannelFund", "OfferCreate", "CheckCash", "EscrowCreate", "EscrowFinish"].includes(tx.transaction.TransactionType)) {
     countXRPDifference(tx.meta.AffectedNodes, address);
   } else {
     console.log(`Not a currency-delivering transaction type: ${tx.transaction.TransactionType}`);

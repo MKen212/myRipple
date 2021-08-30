@@ -1,6 +1,6 @@
 "use strict";
 
-// Script 06 - Sending XRP
+// Script 08 - Trust Set Transaction
 
 // Load Env Variables
 const Dotenv = require("dotenv");
@@ -38,10 +38,13 @@ api.on("error", (errorCode, errorMessage, data) => {
 // Once connected prepare the transaction
 api.on("connected", async () => {
   const preparedTx = await api.prepareTransaction({
-    "TransactionType": "Payment",
+    "TransactionType": "TrustSet",
     "Account": process.env.XRPL_ADDRESS,
-    "Amount": api.xrpToDrops("20"),  // Same as Amount: 20000000
-    "Destination": "rhacBEhAdTBeuwcXe5ArVnX8Kwh886poSo"
+    "LimitAmount": {
+      "currency": "FOO",
+      "issuer": "r3cAFTUeggLrsxpH1NxoZ4GxLjBDa8aicL",
+      "value": "1000000",
+    },
   }, {
     // Expire the transaction if it doesn't happen in ~5 mins
     "maxLedgerVersionOffset": 75

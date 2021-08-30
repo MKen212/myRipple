@@ -1,6 +1,6 @@
 "use strict";
 
-// Script 06 - Sending XRP
+// Script 09 - Payment Channel Claim
 
 // Load Env Variables
 const Dotenv = require("dotenv");
@@ -38,10 +38,11 @@ api.on("error", (errorCode, errorMessage, data) => {
 // Once connected prepare the transaction
 api.on("connected", async () => {
   const preparedTx = await api.prepareTransaction({
-    "TransactionType": "Payment",
+    "TransactionType": "PaymentChannelClaim",
     "Account": process.env.XRPL_ADDRESS,
     "Amount": api.xrpToDrops("20"),  // Same as Amount: 20000000
-    "Destination": "rhacBEhAdTBeuwcXe5ArVnX8Kwh886poSo"
+    "Channel": "89ABEAD9FB97EF28C3CAA83FE8AD2E1E187053A2B654108CC54BBC827B0C5FC5",
+    "Flags": 2147614720,
   }, {
     // Expire the transaction if it doesn't happen in ~5 mins
     "maxLedgerVersionOffset": 75
