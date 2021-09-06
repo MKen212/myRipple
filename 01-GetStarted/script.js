@@ -17,9 +17,11 @@ const localnet = new ripple.RippleAPI({
 
 // const transaction = "01AAEF23D5190D2413843CADD489AAB9C85D08D56D8A27CD7837291F96955D8A"
 // ;
+// const transaction = "3907E408483C39C9D576737CB13C36BD8DC8F556BE0C0F422D036021C72236C6"
+// ;
 
-const transaction = "3907E408483C39C9D576737CB13C36BD8DC8F556BE0C0F422D036021C72236C6"
-;
+// NOTE: Transaction must be available on Localnet
+const transaction = "359D054D4055BB30AD82FBB6AD6228D9E6DEDDE61E9BE7E52846FB27C76DAE29";
 
 
 // Get Ledger Info from Mainnet
@@ -42,7 +44,7 @@ const transaction = "3907E408483C39C9D576737CB13C36BD8DC8F556BE0C0F422D036021C72
       <p>Ledger Version: ${response.ledgerVersion}</p>
       <p>Parent Close Time: ${response.parentCloseTime}</p>
       <p>Total XRP: ${api.dropsToXrp(response.totalDrops)}</p>
-      <p>Transaction #5D8A: ${transData.outcome.deliveredAmount.value} XRP</p>
+      <p>Transaction #${transaction.substr(transaction.length - 4)}: ${transData.outcome.deliveredAmount.value} XRP</p>
     `;
   } catch (error) {
     resultsHTML += `
@@ -73,7 +75,7 @@ const transaction = "3907E408483C39C9D576737CB13C36BD8DC8F556BE0C0F422D036021C72
       <p>Ledger Version: ${response.ledgerVersion}</p>
       <p>Parent Close Time: ${response.parentCloseTime}</p>
       <p>Total XRP: ${api.dropsToXrp(response.totalDrops)}</p>
-      <p>Transaction #5D8A: ${transData.outcome.deliveredAmount.value} XRP</p>
+      <p>Transaction #${transaction.substr(transaction.length - 4)}: ${transData.outcome.deliveredAmount.value} XRP</p>
     `;
   } catch (error) {
     resultsHTML += `

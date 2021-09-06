@@ -41,7 +41,7 @@ api.on("connected", async () => {
     "TransactionType": "Payment",
     "Account": process.env.XRPL_ADDRESS,
     "Amount": api.xrpToDrops("20"),  // Same as Amount: 20000000
-    "Destination": "rhacBEhAdTBeuwcXe5ArVnX8Kwh886poSo"
+    "Destination": "rGEnsuLMRwUd9rbP1HKYif5sym1tUvajCf"
   }, {
     // Expire the transaction if it doesn't happen in ~5 mins
     "maxLedgerVersionOffset": 75
