@@ -17,13 +17,12 @@
   },
   "homepage": "https://github.com/MKen212/myRipple#readme",
   "devDependencies": {
-    "eslint": "^7.31.0",
+    "eslint": "^7.32.0",
     "eslint-plugin-html": "^6.1.2"
   },
   "dependencies": {
     "big.js": "^6.1.1",
     "dotenv": "^10.0.0",
-    "lodash": "^4.17.21",
-    "ripple-lib": "^1.9.7"
+    "ripple-lib": "^1.10.0"
   }
 }
