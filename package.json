@@ -1,6 +1,6 @@
 {
   "name": "myripple",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "XRP and Ripple Test Projects",
   "main": "index.js",
   "scripts": {
@@ -17,12 +17,12 @@
   },
   "homepage": "https://github.com/MKen212/myRipple#readme",
   "devDependencies": {
-    "eslint": "^8.1.0",
+    "eslint": "^8.2.0",
     "eslint-plugin-html": "^6.2.0"
   },
   "dependencies": {
     "big.js": "^6.1.1",
     "dotenv": "^10.0.0",
-    "xrpl": "^2.0.0"
+    "xrpl": "^2.0.1"
   }
 }

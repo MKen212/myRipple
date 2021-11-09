@@ -48,7 +48,7 @@ const RIPPLE_EPOCH = 946684800;  // Ripple Epoch Timestamp in seconds
   } catch (error) {
     console.error(error); 
     resultsHTML += `
-      <p>Error - No connection to Server!</p>
+      <p>Error - ${error.message} See Console for more details.</p>
     `;
   }
   
@@ -92,8 +92,9 @@ const RIPPLE_EPOCH = 946684800;  // Ripple Epoch Timestamp in seconds
     `;
 
   } catch (error) {
+    console.error(error); 
     resultsHTML += `
-      <p>Error - No connection to Server!</p>
+      <p>Error - ${error.message} See Console for more details.</p>
     `;
   }
   
@@ -138,8 +139,9 @@ const RIPPLE_EPOCH = 946684800;  // Ripple Epoch Timestamp in seconds
     `;
 
   } catch (error) {
+    console.error(error); 
     resultsHTML += `
-      <p>Error - No connection to Server!</p>
+      <p>Error - ${error.message} See Console for more details.</p>
     `;
   }
   
