@@ -1,73 +1,111 @@
-/* global ripple */
+/* global xrpl */
 "use strict";
 
 // Script 03 - Browser API
+// NOTE - This version uses Promises with async/await
 
-// console.log(ripple);
+// console.log(xrpl);
 
 // Get HTML elements
 const content = document.getElementById("content");
 
+
 // Get Mainnet Data
-const apiMainnet = new ripple.RippleAPI({
-  server: "wss://s1.ripple.com"  // mainnet Public Server
-});
+const apiMainnet = new xrpl.Client("wss://s1.ripple.com");
+async function mainFunc() {
+  try {
+    // Connect
+    await apiMainnet.connect();
+  
+    // Get Server Info
+    const response = await apiMainnet.request({
+      "id": "main01",
+      "command": "server_info"
+    });
+  
+    // Show response
+    console.log(response);
+    showContent("MAINNET", response);
 
-apiMainnet.connect().then(() => {
-  return apiMainnet.getServerInfo();
-}).then((serverInfo) => {
-  // Show Server Info
-  showContent("MAINNET", serverInfo);
-}).then(() => {
-  return apiMainnet.disconnect();
-}).catch((error) => {
-  console.error(error);
-  content.innerHTML += "<p>Connection to MAINNET failed!</p>";
-});
+    // Disconnect
+    apiMainnet.disconnect();
+  } catch (error) {
+    // Display any errors
+    console.error(error);
+    content.innerHTML += "<p>Connection to MAINNET failed!</p>";
+  }
+}
+mainFunc();
 
+// Get Localnet Data
+const apiLocalnet = new xrpl.Client("ws://localhost:6006");
+async function localFunc() {
+  try {
+    // Connect
+    await apiLocalnet.connect();
+  
+    // Get Server Info
+    const response = await apiLocalnet.request({
+      "id": "local01",
+      "command": "server_info"
+    });
+  
+    // Show response
+    console.log(response);
+    showContent("LOCALNET", response);
 
-const apiLocalnet = new ripple.RippleAPI({
-  server: "ws://localhost:6006"  // mainnet Local Server
-});
-apiLocalnet.connect().then(() => {
-  return apiLocalnet.getServerInfo();
-}).then((serverInfo) => {
-  // Show Server Info
-  showContent("LOCALNET", serverInfo);
-}).then(() => {
-  return apiLocalnet.disconnect();
-}).catch((error) => {
-  console.error(error);
-  content.innerHTML += "<p>Connection to LOCALNET failed!</p>";
-});
+    // Disconnect
+    apiLocalnet.disconnect();
 
-const apiTestnet = new ripple.RippleAPI({
-  server: "wss://s.altnet.rippletest.net/"  // testnet Public Server
-});
+  } catch (error) {
+    // Display any errors
+    console.error(error);
+    content.innerHTML += "<p>Connection to LOCALNET failed!</p>";
+  }
+}
+localFunc();
 
-apiTestnet.connect().then(() => {
-  return apiTestnet.getServerInfo();
-}).then((serverInfo) => {
-  // Show Server Info
-  showContent("TESTNET", serverInfo);
-}).then(() => {
-  return apiTestnet.disconnect();
-}).catch((error) => {
-  console.error(error);
-  content.innerHTML += "<p>Connection to TESTNET failed!</p>";
-});
+// Get Testnet Data
+const apiTestnet = new xrpl.Client("wss://s.altnet.rippletest.net/");
+async function testFunc() {
+  try {
+    // Connect
+    await apiTestnet.connect();
+  
+    // Get Server Info
+    const response = await apiTestnet.request({
+      "id": "test01",
+      "command": "server_info"
+    });
+  
+    // Show response
+    console.log(response);
+    showContent("TESTNET", response);
+
+    // Disconnect
+    apiTestnet.disconnect();
+
+  } catch (error) {
+    // Display any errors
+    console.error(error);
+    content.innerHTML += "<p>Connection to TESTNET failed!</p>";
+  }
+}
+testFunc();
+
 
 // Function to show content in HTML form
 function showContent(type, serverInfo) {
+  const info = serverInfo.result.info;
   const htmlContent =`
   <p>Connected to rippled ${type} server!</p>
   <table>
-    <tr><th>Version</th><td>${serverInfo.buildVersion}</td></tr>
-    <tr><th>Ledgers Available</th><td>${serverInfo.completeLedgers}</td></tr>
-    <tr><th>Host ID</th><td>${serverInfo.hostID}</td></tr>
-    <tr><th>Most Recent Validate Seq</th><td>${serverInfo.validatedLedger.ledgerVersion}</td></tr>
-    <tr><th>Most Recent Validate Hash</th><td>${serverInfo.validatedLedger.hash}</td></tr>
-    <tr><th>Seconds since last validation</th><td>${serverInfo.validatedLedger.age}</td></tr>
+    <tr><th>Version</th><td>${info.build_version}</td></tr>
+    <tr><th>Ledgers Available</th><td>${info.complete_ledgers}</td></tr>
+    <tr><th>Host ID</th><td>${info.hostid}</td></tr>
+    <tr><th>Most Recent Validate Seq</th><td>${info.validated_ledger.seq}</td></tr>
+    <tr><th>Most Recent Validate Hash</th><td>${info.validated_ledger.hash}</td></tr>
+    <tr><th>Seconds since last validation</th><td>${info.validated_ledger.age}</td></tr>
   </table>
   <br />
   `;
