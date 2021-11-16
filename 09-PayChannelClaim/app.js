@@ -9,110 +9,84 @@ if (dotenvConfig.error) console.log(dotenvConfig.error);
 // console.log(process.env);
 
 
-// Load ripple-lib API
-const RippleAPI = require("ripple-lib").RippleAPI;
+// Load xrpl.js API
+const xrpl = require("xrpl");
 
-// Connect to Server
-const api = new RippleAPI({
-  server: process.env.XRPL_SERVER
-});
+// Create a wallet from an existing SEED
+console.log("[Working] Getting Wallet...");
+const wallet = xrpl.Wallet.fromSeed(process.env.XRPL_SEED);
+console.log(`[Wallet] Created for ${wallet.address}`);
 
-// Make connection and show account information
-// api.connect().then(() => {
-//   return api.getAccountInfo(process.env.XRPL_ADDRESS);
-// }).then((response) => {
-//   console.log(response);
-// }).then(() => {
-//   api.disconnect();
-// }).catch(console.error);
+// Function to Connect to Server & Process a request/transaction
+async function main() {
+  const client = new xrpl.Client(process.env.XRPL_SERVER);
 
-
-// Make Connection for transaction
-api.connect();
-
-// Handle Errors
-api.on("error", (errorCode, errorMessage, data) => {
-  console.error(`${errorCode} : ${errorMessage}`);
-});
-
-// Once connected prepare the transaction
-api.on("connected", async () => {
-  const preparedTx = await api.prepareTransaction({
-    "TransactionType": "PaymentChannelClaim",
-    "Account": process.env.XRPL_ADDRESS,
-    "Amount": api.xrpToDrops("20"),  // Same as Amount: 20000000
-    "Channel": "89ABEAD9FB97EF28C3CAA83FE8AD2E1E187053A2B654108CC54BBC827B0C5FC5",
-    "Flags": 2147614720,
-  }, {
-    // Expire the transaction if it doesn't happen in ~5 mins
-    "maxLedgerVersionOffset": 75
-  });
-  
-  // Show the preparation results
-  const maxLedgerVersion = preparedTx.instructions.maxLedgerVersion;
-  console.log("Prepare Transaction Instructions:", preparedTx.txJSON);
-  console.log("Transaction Cost:", preparedTx.instructions.fee, "XRP");
-  console.log("Transaction expires after ledger:", maxLedgerVersion);
-
-  // Sign the Transaction
-  const signedTx = api.sign(preparedTx.txJSON, process.env.XRPL_SECRET);
-  
-  // Show the signing results
-  const txID = signedTx.id;
-  const txBlob = signedTx.signedTransaction;
-  console.log("Identifying Hash:", txID);
-  console.log("Signed Blob:", txBlob);
-
-  // Get the latest ledger version for processing (next ledger version)
-  const earliestLedgerVersion = (await api.getLedgerVersion()) + 1;
-  console.log("Earliest Ledger Version:", earliestLedgerVersion);
-
-  // Submit the transaction to the Ledger
-  const result = await api.submit(txBlob);
-  console.log("Tentative Result Code:", result.resultCode);
-  console.log("Tentative Result Message:", result.resultMessage);
-
-  // Wait for Validation
-  let hasFinalStatus = false;
-  api.request("subscribe", {accounts: [process.env.XRPL_ADDRESS]});
-  api.connection.on("transaction", (event) => {
-    if (event.transaction.hash === txID) {
-      // Show the event results
-      console.log("Transaction has executed!", event);
-      hasFinalStatus = true;
-    }
-  });
-  api.on("ledger", (ledger) => {
-    if (ledger.ledgerVersion > maxLedgerVersion && !hasFinalStatus) {
-      // If maxLedgerVersion is passed advise about transaction expiry
-      console.log("Ledger Version", ledger.ledgerVersion, "was validated.");
-      console.log("If the transaction has not succeeded by now, it's expired!");
-      hasFinalStatus = true;
-    }
+  // Handle Connection
+  client.on("connected", ()=> {
+    console.log(`[Connected] to TestNet.`);
   });
 
-  // Wait until hasFinalStatus
-  while (!hasFinalStatus) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
+  // Handle Disconnection
+  client.on("disconnected", ()=> {
+    console.log(`\n[Disconnected] from TestNet.`);
+  });
 
-  // Check transaction results
   try {
-    // Get copy of the transaction
-    const tx = await api.getTransaction(txID, {
-      minLedgerVersion: earliestLedgerVersion
+    // Make Connection for transaction
+    await client.connect();
+
+    // Once connected prepare the transaction
+    console.log("\n[Working] Transaction Being Prepared...");
+    const preparedTx = await client.autofill({
+      "TransactionType": "PaymentChannelClaim",
+      "Account": wallet.classicAddress,
+      "Amount": xrpl.xrpToDrops("50"),  // Same as Amount: 20000000
+      "Channel": "909FBF4D7CEC8E8727DD58D57542BB0626E160AE47515B745C11ED1DA72C8054",
+      "Flags": 2147614720
     });
+    
+    // Show the preparation results
+    const maxLedgerVersion = preparedTx.LastLedgerSequence;
+    console.log("Prepare Transaction Instructions:", preparedTx);
+    console.log("Transaction Cost:", xrpl.dropsToXrp(preparedTx.Fee), "XRP");
+    console.log("Transaction expires after ledger:", maxLedgerVersion);
 
-    // Show the transaction results
-    console.log("Transaction result:", tx.outcome.result);
-    console.log("Balance changes:", JSON.stringify(tx.outcome.balanceChanges));
+    // Sign the Transaction
+    console.log(`\n[Working] Transaction Being Signed...`);
+    const signedTx = wallet.sign(preparedTx);
+
+    // Show the signing results
+    const txHash = signedTx.hash;
+    const txBlob = signedTx.tx_blob;
+    console.log("Identifying Hash:", txHash);
+    console.log("Signed Blob:", txBlob);
+
+    
+    // Get the latest ledger version for processing (next ledger version)
+    const earliestLedgerVersion = (await client.getLedgerIndex()) + 1;
+    console.log("Earliest Ledger Version:", earliestLedgerVersion);
+
+    
+    // Submit the transaction to the Ledger
+    console.log(`\n[Working] Transaction Submitted...`);
+    const tx = await client.submitAndWait(txBlob);
+    
+    // Show the submission results
+    console.log(tx);
+    if (tx.result.meta.TransactionResult === "tesSUCCESS") {
+      console.log("Transaction SUCCEEDED:", tx.result.meta.TransactionResult);
+    } else {
+      console.log("Transaction FAILED:", tx.result.meta.TransactionResult);
+    }
+    console.log("Balance Changes:", JSON.stringify(xrpl.getBalanceChanges(tx.result.meta), null, 2));
+
   } catch (error) {
-    console.log("Could not get transaction outcome:", error);
+    console.error(`[Error]: ${error}`);
   }
 
-  // End connection
-  if (hasFinalStatus) {
-    api.disconnect();
-    console.log("Done & Disconnected.");
-  }
-});
+  // Disconnect from server
+  client.disconnect();
+}
+
+// Call above function
+main();
