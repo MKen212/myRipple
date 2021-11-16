@@ -1,7 +1,7 @@
 "use strict";
 
-// Script 06 - Sending XRP
-/* NOTE this version uses submitAndWait() to submit a transaction so does not need additional steps to wait for validation */
+// Script 06 - Sending XRP - submit version
+/* NOTE this version uses the submit() method to submit a transaction so requires additional steps to wait for validation */
 
 // Load Env Variables
 const Dotenv = require("dotenv");
@@ -45,12 +45,14 @@ async function main() {
       "Destination": "rhacBEhAdTBeuwcXe5ArVnX8Kwh886poSo"
     });
 
+    // Hard-code wait to test check below
+    // preparedTx.LastLedgerSequence = 22772696;
+
     // Show the preparation results
     const maxLedgerVersion = preparedTx.LastLedgerSequence;
     console.log("Prepared transaction instructions:", preparedTx);
     console.log("Transaction Cost:", xrpl.dropsToXrp(preparedTx.Fee), "XRP");
     console.log("Transaction expires after ledger:", maxLedgerVersion);
-
 
     // Sign the Transaction
     console.log(`\n[Working] Transaction Being Signed...`);
@@ -62,24 +64,69 @@ async function main() {
     console.log("Identifying Hash:", txHash);
     console.log("Signed Blob:", txBlob);
 
-
     // Get the latest ledger version for processing (next ledger version)
     const earliestLedgerVersion = (await client.getLedgerIndex()) + 1;
     console.log("Earliest Ledger Version:", earliestLedgerVersion);
 
-    
+
     // Submit the transaction to the Ledger
     console.log(`\n[Working] Transaction Submitted...`);
-    const tx = await client.submitAndWait(txBlob);
+    const tx = await client.submit(txBlob);
     
-    // Show the submission results
+    // Show the TENTATIVE submission results
     console.log(tx);
-    if (tx.result.meta.TransactionResult === "tesSUCCESS") {
-      console.log("Transaction SUCCEEDED:", tx.result.meta.TransactionResult);
-    } else {
-      console.log("Transaction FAILED:", tx.result.meta.TransactionResult);
+    console.log("Tentative Result:", tx.result.engine_result);
+    console.log("Tentative Result Message:", tx.result.engine_result_message);
+    
+    // Subscribe to Transaction and Ledger
+    console.log(`\n[Working] Subscribing...`);
+    let hasFinalStatus = false;
+    await client.request({
+      "command": "subscribe",
+      "accounts": [process.env.XRPL_ADDRESS],
+      "streams": ["ledger"]
+    });
+
+    // Wait for Validation
+    console.log(`\n[Working] Awaiting Transaction Result...`);
+    client.connection.on("transaction", (event) => {
+      if (event.transaction.hash === txHash) {
+        // Show the event results
+        console.log("Transaction has executed!");
+        hasFinalStatus = true;
+      }
+    });
+
+    // Check if maxLedgerVersion has already passed
+    client.on("ledgerClosed", (ledger) => {
+      // console.log(ledger);
+      if (ledger.ledger_index > maxLedgerVersion && !hasFinalStatus) {
+        // If maxLedgerVersion is passed advise about transaction expiry
+        console.log("Ledger Version", ledger.ledger_index, "was validated.");
+        console.log("If the transaction has not succeeded by now, it's expired!");
+        hasFinalStatus = true;
+      }
+    });
+
+    // Wait until hasFinalStatus is true
+    while (!hasFinalStatus) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
-    console.log("Balance Changes:", JSON.stringify(xrpl.getBalanceChanges(tx.result.meta), null, 2));
+
+    // Get copy of the transaction
+    console.log(`\n[Working] Getting Completed Transaction...`);
+    const txCompleted = await client.request({
+      "command": "tx",
+      "transaction": txHash,
+      "min_ledger": earliestLedgerVersion
+    });
+  
+    // Show the transaction results
+    // console.log(txCompleted);
+    console.log("Transaction hash:", txCompleted.result.hash);
+    console.log("Transaction result:", txCompleted.result.meta.TransactionResult);
+    console.log("Balance changes:", JSON.stringify(xrpl.getBalanceChanges(txCompleted.result.meta), null, 2));
+
   } catch (error) {
     console.error(`[Error]: ${error}`);
   }
